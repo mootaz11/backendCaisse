@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework.response import  Response
 from django.template.loader import  get_template
 from rest_framework.decorators import api_view
@@ -6,8 +8,11 @@ from xhtml2pdf import pisa
 from io import BytesIO
 from ..OrderApi.serializers import OrderSerializer
 from ..OrderProduct.serializers import  OrderProductSerializer
-from ..models import Ticket,Order,OrderProduct
+from ..models import Ticket,Order,OrderProduct,Product
 from ..productApi.serializers import  ProductSerializer
+from datetime import datetime
+from django.core.files import File
+from .utils import render_to_pdf
 
 @api_view(['GET'])
 def getOrder(request,pk):
@@ -66,16 +71,25 @@ def createOrder(request):
 
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def passOrder(request,pk):
-    template = get_template('ticketTemplate.html')
-    html = template.render({})
-    result=BytesIO()
-    pdf=pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")),result)
-    filename = "YourPDF_Order.pdf"
-    # t.pdf.save(filename,pdf)
+    order = Order.objects.get(id=pk)
+    serializedOrder = OrderSerializer(order,many=False)
+    Orderproducts=order.orderProducts.all()
+    for i in Orderproducts:
+        product=Product.objects.get(pk=i.product.id)
+        product.stock-=i.quantity
+        product.save()
+    order.passed=True
+    order.save()
+    pdf = render_to_pdf('ticketTemplate.html',  {})
+    ticket = Ticket()
+    filename = "ticket_{date}.pdf".format(date=str(datetime.now()))
+    ticket.pdf.save(filename, File(BytesIO(pdf.content)))
+    ticket.order=order
+    ticket.save()
     if not pdf.err:
-        return HttpResponse(result.getvalue(),content_type='application/pdf')
+        return Response("done")
     return None
 
 

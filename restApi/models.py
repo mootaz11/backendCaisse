@@ -25,7 +25,7 @@ class Order(models.Model):
 
 
 class Ticket(models.Model):
-    date=models.CharField(max_length=30)
+    date=models.DateTimeField(default=datetime.now())
     order = models.OneToOneField(Order,on_delete=models.CASCADE)
     pdf=models.FileField(upload_to='pdfs',null=True,blank=True)
 
