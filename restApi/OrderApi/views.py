@@ -1,10 +1,5 @@
-from datetime import date
-
 from rest_framework.response import  Response
-from django.template.loader import  get_template
 from rest_framework.decorators import api_view
-from django.http import  HttpResponse
-from xhtml2pdf import pisa
 from io import BytesIO
 from ..OrderApi.serializers import OrderSerializer
 from ..OrderProduct.serializers import  OrderProductSerializer
@@ -96,8 +91,12 @@ def passOrder(request,pk):
         return Response("order passed done !",status=200)
 
 
+
+
 @api_view(['GET'])
 def getpassedOrders(request):
     orders=Order.objects.filter(passed=True)
-    print(orders)
-    return Response("")
+    _orders=[]
+    for order in orders:
+        _orders.append({'order':OrderSerializer(order,many=False).data,'Ticket':str(order.ticket.pdf)})
+    return Response(_orders)
