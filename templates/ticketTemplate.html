@@ -142,11 +142,11 @@ footer {
   <body>
 
     <header class="clearfix">
-      <h1>TICKET N 1 </h1>
+      <h1>TICKET N {{ticket_id}} </h1>
       <div id="company" class="clearfix">
         <div>Carrefour</div>
         <div>Tunisia,<br />Monastir</div>
-        <div>+216 28896426</div>
+        <div>{{DateTicket}}</div>
         <div><a href="mailto:company@example.com">amaramootaz11@gmail.com</a></div>
       </div>
 
@@ -155,64 +155,34 @@ footer {
       <table>
         <thead>
           <tr>
-            <th class="service">SERVICE</th>
+            <th class="service">Product</th>
             <th>PRICE</th>
             <th>QTY</th>
             <th>TOTAL</th>
           </tr>
         </thead>
         <tbody>
+        {% for i in products %}
           <tr>
-            <td class="service">Design</td>
-            <td class="unit">$40.00</td>
-            <td class="qty">26</td>
-            <td class="total">$1,040.00</td>
+            <td class="service">{{i.name}}</td>
+            <td class="unit">{{i.price}} &euro;</td>
+            <td class="qty">{{i.quantity}}</td>
+            <td class="total">{{i.total}}</td>
           </tr>
+        {% endfor %}
           <tr>
-            <td class="service">Development</td>
-            <td class="unit">$40.00</td>
-            <td class="qty">80</td>
-            <td class="total">$3,200.00</td>
-          </tr>
-          <tr>
-            <td class="service">SEO</td>
-            <td class="unit">$40.00</td>
-            <td class="qty">20</td>
-            <td class="total">$800.00</td>
-          </tr>
-          <tr>
-            <td class="service">Training</td>
-            <td class="unit">$40.00</td>
-            <td class="qty">4</td>
-            <td class="total">$160.00</td>
-          </tr>
-            <tr>
-            <td class="service">Training</td>
-            <td class="unit">$40.00</td>
-            <td class="qty">4</td>
-            <td class="total">$160.00</td>
-          </tr>
-          <tr>
-            <td colspan="4">SUBTOTAL</td>
-            <td class="total">$5,200.00</td>
-          </tr>
-          <tr>
-            <td colspan="4">TAX 25%</td>
-            <td class="total">$1,300.00</td>
-          </tr>
-          <tr>
-            <td colspan="4" class="grand total">GRAND TOTAL</td>
-            <td class="grand total">$6,500.00</td>
+            <td colspan="4" class="grand total">TOTAL</td>
+            <td class="grand total">{{GrandTotal}} &euro;</td>
           </tr>
         </tbody>
       </table>
       <div id="notices">
         <div>NOTICE:</div>
-        <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
+        <div class="notice">this a my github profile:</div>
       </div>
     </main>
     <footer>
-      Invoice was created on a computer and is valid without the signature and seal.
+    https://github.com/mootaz11
     </footer>
   </body>
 </html>

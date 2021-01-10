@@ -73,28 +73,31 @@ def createOrder(request):
 
 @api_view(['POST'])
 def passOrder(request,pk):
-    order = Order.objects.get(id=pk)
-    serializedOrder = OrderSerializer(order,many=False)
-    Orderproducts=order.orderProducts.all()
-    for i in Orderproducts:
-        product=Product.objects.get(pk=i.product.id)
-        product.stock-=i.quantity
-        product.save()
-    order.passed=True
-    order.save()
-    pdf = render_to_pdf('ticketTemplate.html',  {})
-    ticket = Ticket()
-    filename = "ticket_{date}.pdf".format(date=str(datetime.now()))
-    ticket.pdf.save(filename, File(BytesIO(pdf.content)))
-    ticket.order=order
-    ticket.save()
-    if not pdf.err:
-        return Response("done")
-    return None
+        order = Order.objects.get(id=pk)
+        serializedOrder = OrderSerializer(order,many=False)
+        Orderproducts=order.orderProducts.all()
+        _products=[]
+        for i in Orderproducts:
+            product=Product.objects.get(pk=i.product.id)
+            product.stock-=i.quantity
+            product.save()
+            _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':i.quantity*product.price})
+        order.passed=True
+        order.save()
+        pdf = render_to_pdf('ticketTemplate.html',  {'products':_products,
+                                                        'GrandTotal':order.total
+                                                        ,'DateTicket':str(order.date),'ticket_id':str(order.id)})
 
+        ticket = Ticket(order=order)
+        filename = "ticket_{date}.pdf".format(date=str(datetime.now()))
+        ticket.pdf.save(filename, File(BytesIO(pdf.content)))
+        ticket.save()
 
+        return Response("order passed done !",status=200)
 
 
 @api_view(['GET'])
 def getpassedOrders(request):
-    print('passed orders')
+    orders=Order.objects.filter(passed=True)
+    print(orders)
+    return Response("")
