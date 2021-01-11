@@ -38,7 +38,6 @@ def updateOrder(request,pk):
         else:
             orderProduct=serializer.save()
 
-
         _total=order.total
         if (request.data['product']['offer'] == True):
             _total-=((request.data['product']['price'])*(OrderProductSerializer(orderProduct,many=False).data['quantity']-1))-\
@@ -90,7 +89,19 @@ def passOrder(request,pk):
             product.stock-=i.quantity
             product.save()
             i.delete()
-            _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':i.quantity*product.price})
+            print(product.discount)
+            if(product.offer and not product.discount):
+                _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':(i.quantity*product.price),'reduction':"2 products = 1 free :"+str((i.quantity*product.price)-((i.quantity//3)*product.price))})
+            if(product.discount and not product.offer):
+                _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':(i.quantity*product.price),'reduction':"50% remise"+str((i.quantity*(product.price*0.5)))})
+            if(product.discount and product.offer):
+                _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':(i.quantity*product.price),'reduction':"50% remise + 2products= 1 free :"+str((i.quantity*product.price*0.5)-((i.quantity//3)*(product.price*0.5)))})
+            if(not product.discount and not product.offer):
+                _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':(i.quantity*product.price),'reduction':'no offers '+str((i.quantity*product.price))})
+
+
+
+
         order.passed=True
         order.save()
         pdf = render_to_pdf('ticketTemplate.html',  {'products':_products,
