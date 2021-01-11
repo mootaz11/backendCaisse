@@ -5,6 +5,8 @@ from ..OrderApi.serializers import OrderSerializer
 from ..OrderProduct.serializers import  OrderProductSerializer
 from ..models import Ticket,Order,OrderProduct,Product
 from ..productApi.serializers import  ProductSerializer
+from ..ticketApi.serializers import  TicketSerializer
+
 from datetime import datetime
 from django.core.files import File
 from .utils import render_to_pdf
@@ -28,8 +30,8 @@ def updateOrder(request,pk):
         'quantity': request.data['quantity'],
         'order': int(pk)})
     if serializer.is_valid():
-        if request.data['product']['id'] in [i.id for i in OrderProduct.objects.filter(order=pk)]:
-            orderProduct=OrderProduct.objects.get(id=request.data['product']['id'])
+        if request.data['product']['id'] in [i.product.id for i in OrderProduct.objects.filter(order=pk)]:
+            orderProduct=OrderProduct.objects.get(product=request.data['product']['id'])
             orderProduct.quantity+=1
             orderProduct.save()
 
@@ -87,6 +89,7 @@ def passOrder(request,pk):
             product=Product.objects.get(pk=i.product.id)
             product.stock-=i.quantity
             product.save()
+            i.delete()
             _products.append({'name':product.name,'price':product.price,'quantity':i.quantity,'total':i.quantity*product.price})
         order.passed=True
         order.save()
@@ -98,8 +101,10 @@ def passOrder(request,pk):
         filename = "ticket_{date}.pdf".format(date=str(datetime.now()))
         ticket.pdf.save(filename, File(BytesIO(pdf.content)))
         ticket.save()
+        ticket_serializer=TicketSerializer(ticket,many=False)
 
-        return Response("order passed done !",status=200)
+
+        return Response(ticket_serializer.data,status=200)
 
 @api_view(['GET'])
 def getpassedOrders(request):
