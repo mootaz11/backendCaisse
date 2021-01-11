@@ -11,6 +11,23 @@ from datetime import datetime
 from django.core.files import File
 from .utils import render_to_pdf
 
+"""
+function name : getOrder
+
+http-method: GET
+
+Description :
+this function returns a specific order 
+
+parameters : 
+request : the request coming from the front side in this parameter we find the body that the user sends to the server side
+pk : is the param that we send in the route which presents the id of such order
+
+
+what the function Returns :
+ the function returns a json response that contains the order and the products of this order 
+
+"""
 @api_view(['GET'])
 def getOrder(request,pk):
     order = Order.objects.get(id=pk)
@@ -20,6 +37,27 @@ def getOrder(request,pk):
                'orderProduct':OrderProductSerializer({'quantity':p.quantity,'order':p.order,'product':p.product}).data}
               for p  in Orderproducts]
     return Response({'products':products,'order':serializedOrder.data})
+
+
+"""
+function name : updateOrder
+
+http-method: PATCH
+
+Description :
+this function returns a specific order 
+
+parameters : 
+request : the request coming from the front side in this parameter we find the body that the user sends to the server side,
+the request contains the product that we want to add to our order and the quantity
+pk : is the param that we send in the route which presents the id of such order
+
+
+what the function Returns :
+ the function returns a json response that contains the order by updating the orderProducts and update the total of a given order  
+ and a 200 status which is the status of the server response
+"""
+
 
 
 @api_view(['PATCH'])
@@ -57,6 +95,25 @@ def updateOrder(request,pk):
 
     return Response(serializedOrder.data,status=200)
 
+"""
+function name : createOrder
+
+http-method: POST
+
+Description :
+this function returns a specific order 
+
+parameters : 
+request : the request coming from the front side in this parameter we find the body that the user sends to the server side ,
+the request contains the product that we want to add to our new order and the quantity
+
+
+what the function Returns : Response(serializedOrder.data,status=201)
+ the function returns a json response that contains the order by updating the orderProducts and update the total of a given order and a 201 status 
+ which is the status of the server response 
+"""
+
+
 
 @api_view(['POST'])
 def createOrder(request):
@@ -75,6 +132,26 @@ def createOrder(request):
         serializedOrder=OrderSerializer(order,many=False)
 
     return Response(serializedOrder.data,status=201)
+
+"""
+function name : passOrder
+
+http-method: POST
+
+Description :
+this function returns the ticket generated of the passed order , the ticket contains the date and 
+the path of the pdf file stored in media/pdfs 
+
+parameters : 
+request : the request coming from the front side in this parameter we find the body that the user sends to the server side ,
+the request contains the product that we want to add to our new order and the quantity
+pk : is the param that we send in the route which presents the id of such order
+
+
+what the function Returns : Response(ticket_serializer.data,status=200)
+ the function returns a json response that contains the ticket by of a given order and a 200 status 
+ which is the status of the server response 
+"""
 
 
 
@@ -116,6 +193,25 @@ def passOrder(request,pk):
 
 
         return Response(ticket_serializer.data,status=200)
+
+"""
+function name : getpassedOrders
+
+http-method: GET
+
+Description :
+this function returns a passed orders 
+
+parameters : 
+request : the request coming from the front side in this parameter we find the body that the user sends to the server side
+
+
+what the function Returns :
+ the function returns a json response that contains a set of passed orders { passed=True }
+
+"""
+
+
 
 @api_view(['GET'])
 def getpassedOrders(request):

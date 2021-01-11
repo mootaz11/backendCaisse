@@ -17,7 +17,20 @@ from django.contrib import admin
 from django.conf.urls import url,include
 from django.conf import settings
 from django.conf.urls.static import static
+"""
+in this file we define the routes that we are going to use in the whole rest api  defined in urlpatterns
 
+    url('admin/', admin.site.urls),
+    url('api/order/',include('restApi.OrderApi.urls')), :  the bridge to the order api
+    url('api/product/', include('restApi.productApi.urls')), : the route that connects us to product api 
+    url('api/ticket/', include('restApi.ticketApi.urls')), : the route that connects us to ticket api
+    url('api/productOrder/', include('restApi.OrderProduct.urls')), : the route that connects us to productOrder api 
+            ]
+            
+            
+            +static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)  : this instruction helps us to see the files stored in the media file 
+
+"""
 
 urlpatterns = [
     url('admin/', admin.site.urls),
