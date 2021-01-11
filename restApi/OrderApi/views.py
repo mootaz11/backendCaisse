@@ -27,20 +27,31 @@ def updateOrder(request,pk):
         'product': request.data['product']['id'],
         'quantity': request.data['quantity'],
         'order': int(pk)})
-
     if serializer.is_valid():
         if request.data['product']['id'] in [i.id for i in OrderProduct.objects.filter(order=pk)]:
             orderProduct=OrderProduct.objects.get(id=request.data['product']['id'])
             orderProduct.quantity+=1
             orderProduct.save()
-        else:
-            serializer.save()
-        order.total = request.data['product']['price']*(OrderProductSerializer(orderProduct,many=False).data['quantity'])
-        if (request.data['product']['offer'] == True):
-            print(OrderProductSerializer(orderProduct,many=False).data['quantity']//3)
-            order.total-=(request.data['product']['price']*(OrderProductSerializer(orderProduct,many=False).data['quantity']//3))
-        order.save()
 
+        else:
+            orderProduct=serializer.save()
+
+
+        _total=order.total
+        if (request.data['product']['offer'] == True):
+            _total-=((request.data['product']['price'])*(OrderProductSerializer(orderProduct,many=False).data['quantity']-1))-\
+                    (request.data['product']['price']*((OrderProductSerializer(orderProduct,many=False).data['quantity']-1)//3))
+
+            orderProductTotal=((request.data['product']['price'])*(OrderProductSerializer(orderProduct,many=False).data['quantity']))-\
+                              (request.data['product']['price']*(OrderProductSerializer(orderProduct,many=False).data['quantity']//3))
+
+            _total+=orderProductTotal
+
+        else:
+            _total=_total-(request.data['product']['price'])*(OrderProductSerializer(orderProduct,many=False).data['quantity']-1)
+            _total=_total+(request.data['product']['price'])*(OrderProductSerializer(orderProduct,many=False).data['quantity'])
+    order.total=_total
+    order.save()
     serializedOrder = OrderSerializer(order, many=False)
 
     return Response(serializedOrder.data,status=200)
@@ -62,7 +73,7 @@ def createOrder(request):
             order.save()
         serializedOrder=OrderSerializer(order,many=False)
 
-    return Response(serializedOrder.data,status=200)
+    return Response(serializedOrder.data,status=201)
 
 
 
@@ -89,9 +100,6 @@ def passOrder(request,pk):
         ticket.save()
 
         return Response("order passed done !",status=200)
-
-
-
 
 @api_view(['GET'])
 def getpassedOrders(request):

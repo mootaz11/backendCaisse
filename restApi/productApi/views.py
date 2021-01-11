@@ -9,7 +9,7 @@ def createProduct(request):
     serializer=ProductSerializer(data=request.data)
     if(serializer.is_valid()):
         serializer.save()
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
     else :
         return  Response(data=None,status=status.HTTP_400_BAD_REQUEST)
 
