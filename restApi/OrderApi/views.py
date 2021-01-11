@@ -208,10 +208,7 @@ request : the request coming from the front side in this parameter we find the b
 
 what the function Returns :
  the function returns a json response that contains a set of passed orders { passed=True }
-
 """
-
-
 
 @api_view(['GET'])
 def getpassedOrders(request):
